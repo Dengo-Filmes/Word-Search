@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
+//using DG.Tweening;
 
 public class WordSearchLetterController : MonoBehaviour
 {
@@ -41,9 +41,15 @@ public class WordSearchLetterController : MonoBehaviour
     //scales up the letter when selected to look nicer
     public void MakeLetterBigger(bool wantBig) 
     {
-        if(wantBig)
-           gameObject.transform.DOScale(ScaleSize, ScaleTime);
+        if (wantBig)
+        {
+            //gameObject.transform.DOScale(ScaleSize, ScaleTime);
+            transform.localScale = new Vector3(ScaleSize, ScaleSize, ScaleSize);
+        }
         else
-            gameObject.transform.DOScale(1, ScaleTime);
+        {
+            //gameObject.transform.DOScale(1, ScaleTime);
+            transform.localScale = Vector3.one;
+        }
     }
 }

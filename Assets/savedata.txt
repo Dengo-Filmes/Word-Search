@@ -1,0 +1,18 @@
+
+Felipe Nascimento Rocha,123456,2,4870
+Geraldo Jânio Fonseca De Vega,123678,1,4854
+Ziraldo André Aragão De Souza,1853456,4,4850
+Barnabé Décio Barros Filho,34645767,2,3647
+Edi,2519,1,3606
+Juliana Almeida,000,2,3501
+Allison Quitéria De Madeira,876345,1,3501
+Elisete Carmona De Estrada,346679,3,2830
+Fábio Espinoza De Franco,2345457,3,2449
+Domingos Ederson Bittencourt Gomes,2345678,1,2421
+Celeste Maria Bezerra De Queirós,2345678,4,2421
+Manu,0000,2,1611
+Ze,342,1,1521
+Fe,0001,4,921
+Manu,000,3,921
+Gabrielle Faria De Coelho,465789,1,350
+Ffff,9999,2,-30

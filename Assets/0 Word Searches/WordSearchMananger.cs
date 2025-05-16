@@ -5,6 +5,7 @@ using UnityEngine.UI;
 //using DG.Tweening;
 using System.Net;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class WordSearchMananger : MonoBehaviour
 {
@@ -203,7 +204,7 @@ public class WordSearchMananger : MonoBehaviour
                 //1 - Vertical
                 //2 - Pos Diagonal
                 //3 - Neg Diagonal
-                int howToPlace = Random.Range(0, 4);
+                int howToPlace = Random.Range(0, 2);
 
 
                 //the placing methods are pretty much the same, just build for what they need to do
@@ -315,10 +316,10 @@ public class WordSearchMananger : MonoBehaviour
                     PlaceHorizontal();
                 if (howToPlace == 1)
                     PlaceVert();
-                if (howToPlace == 2)
-                    PositiveDiagonals();
-                if (howToPlace == 3)
-                    NegativeDiagonals();
+                //if (howToPlace == 2)
+                //    PositiveDiagonals();
+                //if (howToPlace == 3)
+                //    NegativeDiagonals();
             }
         }
 
@@ -656,14 +657,15 @@ public class WordSearchMananger : MonoBehaviour
     /// <summary>
     /// what to do whne a word search is complete
     /// </summary>
-    void OnPuzzleComplete()
+    void OnPuzzleComplete(bool time)
     {
         if (!isPlaying) return;
 
         SumScore();
         //OnWordSearchComplete.transform.DOScale(Vector3.one, LerpTime);
         OnWordSearchComplete.transform.localScale = Vector3.one;
-        CompleteTimeText.text = "Congrats! You got all the words in " + Mathf.FloorToInt(gameTimer) + " seconds! Your score is: " + GetFinalScore() + " points!";
+        CompleteTimeText.text = "Parabéns! Sua pontuação é: " + GetFinalScore() + " pontos!";
+        DataController.Instance.SaveUserData(GetFinalScore());
     }
 
     /// <summary>
@@ -684,7 +686,7 @@ public class WordSearchMananger : MonoBehaviour
 
         if (WordsLeft == 0)
         {
-            OnPuzzleComplete();
+            OnPuzzleComplete(false);
         }
 
         SelectedLettersList.Clear();
@@ -788,7 +790,7 @@ public class WordSearchMananger : MonoBehaviour
             //InGameTimeText.text = mins + " : " + secs;
         } else if (timer <= 0)
         {
-            OnPuzzleComplete();
+            OnPuzzleComplete(true);
             isPlaying = false;
         }
 
@@ -811,6 +813,11 @@ public class WordSearchMananger : MonoBehaviour
         // Substituir pelo novo Input System / Touch Script
         if (Input.GetMouseButton(0))
             FillInSelectedLetters();
+    }
+
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 
     private void Update()

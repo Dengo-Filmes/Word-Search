@@ -25,7 +25,8 @@ public class MainMenuController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        DataController.Instance.LoadData();
+        //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
+            //DataController.Instance.LoadDataAsync();
     }
 
     // Update is called once per frame

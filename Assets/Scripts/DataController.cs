@@ -1,8 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
+using Unity.Services.Leaderboards;
+using Unity.Services.Leaderboards.Models;
+using Unity.VisualScripting;
 using UnityEditor.Overlays;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class DataController : MonoBehaviour
 {
@@ -12,9 +19,11 @@ public class DataController : MonoBehaviour
 
     public List<UserData> players = new();
 
-    private void Awake()
+    const string leaderboardID = "Online_Players";
+
+    private async void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -22,6 +31,12 @@ public class DataController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        await UnityServices.InitializeAsync();
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        await LeaderboardsService.Instance.AddPlayerScoreAsync(leaderboardID, 0);
+
+        LoadDataAsync();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -41,6 +56,9 @@ public class DataController : MonoBehaviour
         currentUser = userData;
         players.Add(currentUser);
         
+        AuthenticationService.Instance.UpdatePlayerNameAsync(userData.username + "," + userData.ID);
+        print(AuthenticationService.Instance.PlayerName);
+
         print("<color=cyan>USUÁRIO CRIADO");
     }
 
@@ -88,6 +106,31 @@ public class DataController : MonoBehaviour
 
         players = players.OrderByDescending(x => x.score).ToList();
         FindFirstObjectByType<MainMenuController>().CreateLeaderboard();
+    }
+
+    public async void LoadDataAsync()
+    {
+        try
+        {
+            var players = await LeaderboardsService.Instance.GetScoresAsync(leaderboardID);
+            if(players.Results.Count <= 0) return;
+            this.players.Clear();
+            for (int i = 0; i < players.Results.Count; i++)
+            {
+                List<string> lineData = players.Results[i].PlayerName.Split(",").ToList<string>();
+                UserData data = new UserData(lineData[0], lineData[1], 0);
+                data.SetScore((int)players.Results[i].Score);
+                this.players.Add(data);
+            }
+
+            this.players = this.players.OrderByDescending(x => x.score).ToList();
+            FindFirstObjectByType<MainMenuController>().CreateLeaderboard();
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+            throw;
+        }
     }
 
     public List<UserData> GetUsers()

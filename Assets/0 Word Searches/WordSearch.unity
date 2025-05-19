@@ -1238,13 +1238,13 @@ MonoBehaviour:
   Wrong: {r: 1, g: 0, b: 0, a: 0.49019608}
   WordsLeft: 0
   WordsToFind:
-  - "Gen\xE9rico"
+  - Qualidade
+  - Acessibilidade
+  - "Confian\xE7a"
   - "Biosint\xE9tica"
-  - Empresa
-  - Ache
-  - "Princ\xEDpio"
-  - Ativo
-  - Medicamento
+  - "Gen\xE9rico"
+  - "Excel\xEAncia"
+  - Cuidado
   CompleteTimeText: {fileID: 9192935879091004964}
   LetterPrefab: {fileID: 8437797523805623569, guid: 246eb181f45379842ad3987e1494211d, type: 3}
   WordPrefab: {fileID: 8437797523805623569, guid: 320675ba82bd524438fb734e44209cee, type: 3}

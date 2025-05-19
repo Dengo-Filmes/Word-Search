@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using System.Net;
 using TMPro;
 using UnityEngine.SceneManagement;
+using Unity.Services.Leaderboards;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class WordSearchMananger : MonoBehaviour
 {
@@ -665,7 +667,21 @@ public class WordSearchMananger : MonoBehaviour
         //OnWordSearchComplete.transform.DOScale(Vector3.one, LerpTime);
         OnWordSearchComplete.transform.localScale = Vector3.one;
         CompleteTimeText.text = "Parabéns! Sua pontuação é: " + GetFinalScore() + " pontos!";
-        DataController.Instance.SaveUserData(GetFinalScore());
+        //DataController.Instance.SaveUserData(GetFinalScore());
+
+        SaveDataAsync();
+    }
+    async void SaveDataAsync()
+    {
+        try
+        {
+            await LeaderboardsService.Instance.AddPlayerScoreAsync("Online_Players", GetFinalScore());
+        }
+        catch (System.Exception)
+        {
+
+            throw;
+        }
     }
 
     /// <summary>

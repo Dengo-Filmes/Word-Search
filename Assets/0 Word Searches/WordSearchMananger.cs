@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-//using DG.Tweening;
-using System.Net;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.Services.Leaderboards;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class WordSearchMananger : MonoBehaviour
 {
@@ -25,6 +22,7 @@ public class WordSearchMananger : MonoBehaviour
     float timer;
     [SerializeField] TMP_Text InGameTimeText;
     [SerializeField] TMP_Text playedTimeText;
+    [SerializeField] TMP_Text addedTimeText;
     float gameTimer = 0;
     public float LerpTime;
     [Space(15)]
@@ -45,6 +43,7 @@ public class WordSearchMananger : MonoBehaviour
     //[HideInInspector]
     public List<string> WordsToFind;
     [Space(15)]
+    public TMP_Text nameText;
     public TMP_Text CompleteTimeText;
     [Header("Prefabs")]
     public GameObject LetterPrefab;
@@ -638,8 +637,30 @@ public class WordSearchMananger : MonoBehaviour
                 i.GetComponentInChildren<TMP_Text>().color = Correct;
 
         AddScore();
+        AddMultiplier();
+    }
+
+    void AddMultiplier()
+    {
         timer += timeToAdd;
         multiplierTimer = timeToAdd * 2;
+
+        scoreText.rectTransform.localScale = new Vector3(2f, 2f, 2f);
+        LeanTween.scale(scoreText.gameObject, Vector3.one, 0.5f).setEaseOutBounce();
+
+        addedTimeText.text = "+" + timeToAdd.ToString() + "s";
+
+        addedTimeText.rectTransform.localScale = new Vector3(0, 1, 1);
+        LeanTween.scale(addedTimeText.gameObject, new Vector3(1, 1, 1), 0.15f).setOnStart(() =>
+        {
+            LeanTween.alphaCanvas(addedTimeText.GetComponent<CanvasGroup>(), 1, 0.1f);
+        }).setOnComplete(() =>
+        {
+            LeanTween.scale(addedTimeText.gameObject, new Vector3(0, 1, 1), 0.15f).setDelay(3f).setOnStart(() =>
+            {
+                LeanTween.alphaCanvas(addedTimeText.GetComponent<CanvasGroup>(), 0, 0.1f);
+            });
+        });
     }
 
     /// <summary>
@@ -665,11 +686,13 @@ public class WordSearchMananger : MonoBehaviour
 
         SumScore();
         //OnWordSearchComplete.transform.DOScale(Vector3.one, LerpTime);
-        OnWordSearchComplete.transform.localScale = Vector3.one;
+        //OnWordSearchComplete.transform.localScale = Vector3.one;
+        LeanTween.scale(OnWordSearchComplete, Vector3.one, 0.5f).setEaseInOutCirc().setDelay(0.75f);
+        nameText.text = DataController.Instance.GetUserData().username;
         CompleteTimeText.text = "Parabéns! Sua pontuação é: " + GetFinalScore() + " pontos!";
-        //DataController.Instance.SaveUserData(GetFinalScore());
+        DataController.Instance.SaveUserData(GetFinalScore());
 
-        SaveDataAsync();
+        //SaveDataAsync();
     }
     async void SaveDataAsync()
     {
@@ -833,6 +856,7 @@ public class WordSearchMananger : MonoBehaviour
 
     public void ReturnToMenu()
     {
+        DataController.Instance.SetStandby();
         SceneManager.LoadScene(0);
     }
 

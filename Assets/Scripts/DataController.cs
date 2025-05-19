@@ -1,15 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Leaderboards;
-using Unity.Services.Leaderboards.Models;
-using Unity.VisualScripting;
-using UnityEditor.Overlays;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.Video;
 
 public class DataController : MonoBehaviour
 {
@@ -18,10 +11,12 @@ public class DataController : MonoBehaviour
     public UserData currentUser;
 
     public List<UserData> players = new();
+    [SerializeField] VideoClip menuClip;
+    [SerializeField] VideoClip standbyClip;
 
     const string leaderboardID = "Online_Players";
 
-    private async void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -32,17 +27,18 @@ public class DataController : MonoBehaviour
             Destroy(gameObject);
         }
 
-        await UnityServices.InitializeAsync();
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        await LeaderboardsService.Instance.AddPlayerScoreAsync(leaderboardID, 0);
+        //await UnityServices.InitializeAsync();
+        //await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        //await LeaderboardsService.Instance.AddPlayerScoreAsync(leaderboardID, 0);
 
-        LoadDataAsync();
+        //LoadDataAsync();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         //LoadData();
+        ChangeBackground(standbyClip);
     }
 
     // Update is called once per frame
@@ -51,13 +47,32 @@ public class DataController : MonoBehaviour
         
     }
 
+    public void ChangeBackground(VideoClip clip)
+    {
+        VideoPlayer player = GetComponent<VideoPlayer>();
+        player.clip = clip;
+        player.Play();
+    }
+
+    public void ChangeBackground()
+    {
+        VideoPlayer player = GetComponent<VideoPlayer>();
+        player.clip = menuClip;
+        player.Play();
+    }
+
+    public void SetStandby()
+    {
+        ChangeBackground(standbyClip);
+    }
+
     public void SetUserData(UserData userData)
     {
         currentUser = userData;
         players.Add(currentUser);
         
-        AuthenticationService.Instance.UpdatePlayerNameAsync(userData.username + "," + userData.ID);
-        print(AuthenticationService.Instance.PlayerName);
+        //AuthenticationService.Instance.UpdatePlayerNameAsync(userData.username + "," + userData.ID);
+        //print(AuthenticationService.Instance.PlayerName);
 
         print("<color=cyan>USUÁRIO CRIADO");
     }
@@ -108,30 +123,30 @@ public class DataController : MonoBehaviour
         FindFirstObjectByType<MainMenuController>().CreateLeaderboard();
     }
 
-    public async void LoadDataAsync()
-    {
-        try
-        {
-            var players = await LeaderboardsService.Instance.GetScoresAsync(leaderboardID);
-            if(players.Results.Count <= 0) return;
-            this.players.Clear();
-            for (int i = 0; i < players.Results.Count; i++)
-            {
-                List<string> lineData = players.Results[i].PlayerName.Split(",").ToList<string>();
-                UserData data = new UserData(lineData[0], lineData[1], 0);
-                data.SetScore((int)players.Results[i].Score);
-                this.players.Add(data);
-            }
+    //public async void LoadDataAsync()
+    //{
+    //    try
+    //    {
+    //        var players = await LeaderboardsService.Instance.GetScoresAsync(leaderboardID);
+    //        if(players.Results.Count <= 0) return;
+    //        this.players.Clear();
+    //        for (int i = 0; i < players.Results.Count; i++)
+    //        {
+    //            List<string> lineData = players.Results[i].PlayerName.Split(",").ToList<string>();
+    //            UserData data = new UserData(lineData[0], lineData[1], 0);
+    //            data.SetScore((int)players.Results[i].Score);
+    //            this.players.Add(data);
+    //        }
 
-            this.players = this.players.OrderByDescending(x => x.score).ToList();
-            FindFirstObjectByType<MainMenuController>().CreateLeaderboard();
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log(e.Message);
-            throw;
-        }
-    }
+    //        this.players = this.players.OrderByDescending(x => x.score).ToList();
+    //        FindFirstObjectByType<MainMenuController>().CreateLeaderboard();
+    //    }
+    //    catch (System.Exception e)
+    //    {
+    //        Debug.Log(e.Message);
+    //        throw;
+    //    }
+    //}
 
     public List<UserData> GetUsers()
     {

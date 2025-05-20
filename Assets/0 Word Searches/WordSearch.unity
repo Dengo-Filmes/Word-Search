@@ -1565,7 +1565,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlaying: 1
-  TimeToComplete: 90
+  TimeToComplete: 30
   InGameTimeText: {fileID: 662604090}
   playedTimeText: {fileID: 2137880784}
   addedTimeText: {fileID: 396908734}

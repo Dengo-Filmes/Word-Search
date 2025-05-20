@@ -1110,7 +1110,7 @@ GameObject:
   - component: {fileID: 290842334}
   m_Layer: 5
   m_Name: Background
-  m_TagString: Untagged
+  m_TagString: Finish
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4699,6 +4699,7 @@ MonoBehaviour:
     shift: 0
     score: 0
   players: []
+  texture: {fileID: 0}
   menuClip: {fileID: 32900000, guid: 64bc1350ca8619042a313386072f8d71, type: 3}
   standbyClip: {fileID: 32900000, guid: 5b014f07408201149a7ae7ae85c52962, type: 3}
   loadedData: 
@@ -4733,7 +4734,7 @@ VideoPlayer:
   m_TimeReference: 0
   m_TargetMaterialRenderer: {fileID: 0}
   m_TargetMaterialProperty: <noninit>
-  m_RenderMode: 2
+  m_RenderMode: 4
   m_AspectRatio: 2
   m_DataSource: 0
   m_TimeUpdateMode: 2

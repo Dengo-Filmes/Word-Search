@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Video;
 
 public class DataController : MonoBehaviour
@@ -13,6 +14,7 @@ public class DataController : MonoBehaviour
     public UserData currentUser;
 
     public List<UserData> players = new();
+    [SerializeField] RawImage texture;
     [SerializeField] VideoClip menuClip;
     [SerializeField] VideoClip standbyClip;
 
@@ -50,7 +52,11 @@ public class DataController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (texture == null)
+        {
+            texture = GameObject.FindGameObjectWithTag("Finish").GetComponent<RawImage>();
+        } else
+            texture.texture = GetComponent<VideoPlayer>().texture;
     }
 
     public void ChangeBackground(VideoClip clip)

@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
 
@@ -16,6 +17,9 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] TMP_InputField nameField;
     [SerializeField] TMP_InputField IDField;
     [SerializeField] TMP_Dropdown shiftDropdown;
+
+    [Header("Rules")]
+    [SerializeField] CanvasGroup ruleCanvas;
 
     [Header("Leaderboard")]
     [SerializeField] GameObject infoPrefab;
@@ -111,6 +115,12 @@ public class MainMenuController : MonoBehaviour
 
             }).setEase(easeType);
         }
+    }
+
+    public void OpenCloseRules(bool open)
+    {
+        LeanTween.alphaCanvas(ruleCanvas, open ? 1 : 0, 0.5f).setEaseInOutCirc();
+        ruleCanvas.blocksRaycasts = open;
     }
 
     public void CreateLeaderboard()

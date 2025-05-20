@@ -55,4 +55,9 @@ public class LeaderboardGoogleFile : MonoBehaviour
             GetComponent<DataController>().GenerateGoogleData(data);
         }
     }
+
+    void ResetData()
+    {
+        StartCoroutine(UploadCoroutine(""));
+    }
 }

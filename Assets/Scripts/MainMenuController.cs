@@ -35,7 +35,7 @@ public class MainMenuController : MonoBehaviour
     void Start()
     {
         //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
-            DataController.Instance.LoadData();
+            DataController.Instance.LoadGoogleData();
         SetStandby(true);
     }
 

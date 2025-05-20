@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,12 +8,15 @@ using UnityEngine.Video;
 public class DataController : MonoBehaviour
 {
     public static DataController Instance;
+    LeaderboardGoogleFile googleFile;
 
     public UserData currentUser;
 
     public List<UserData> players = new();
     [SerializeField] VideoClip menuClip;
     [SerializeField] VideoClip standbyClip;
+
+    [SerializeField] [TextArea] string loadedData;
 
     const string leaderboardID = "Online_Players";
 
@@ -26,6 +30,8 @@ public class DataController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        googleFile = GetComponent<LeaderboardGoogleFile>();
 
         //await UnityServices.InitializeAsync();
         //await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -81,7 +87,8 @@ public class DataController : MonoBehaviour
     {
         currentUser.SetScore(score);
         // Save to file
-        SaveData();
+        //SaveData();
+        SaveGoogleData();
     }
 
     public UserData GetUserData()
@@ -102,10 +109,48 @@ public class DataController : MonoBehaviour
         File.WriteAllText(Application.dataPath + "/savedata.txt", data);
     }
 
+    void SaveGoogleData()
+    {
+        string data = "";
+        players = players.OrderByDescending(x => x.score).ToList();
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            data += "\n" + players[i].username + "," + players[i].ID + "," + players[i].shift.ToString() + "," + players[i].score.ToString();
+        }
+
+        googleFile.UploadLeaderboard(data);
+    }
+
     public void LoadData()
     {
         if (!File.Exists(Application.dataPath + "/savedata.txt")) return;
         string loadData = File.ReadAllText(Application.dataPath + "/savedata.txt");
+
+        players.Clear();
+
+        List<string> lines = loadData.Split('\n').ToList<string>();
+        for (int i = 1; i < lines.Count; i++)
+        {
+            List<string> lineData = lines[i].Split(',').ToList<string>();
+            UserData user = new UserData(lineData[0], lineData[1], int.Parse(lineData[2]));
+            user.SetScore(int.Parse(lineData[3]));
+            players.Add(user);
+
+        }
+
+        players = players.OrderByDescending(x => x.score).ToList();
+        FindFirstObjectByType<MainMenuController>().CreateLeaderboard();
+    }
+
+    public void LoadGoogleData()
+    {
+        googleFile.DownloadLeaderboard();
+    }
+
+    public void GenerateGoogleData(string loadData)
+    {
+        loadedData = loadData;
 
         players.Clear();
 

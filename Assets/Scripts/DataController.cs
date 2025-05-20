@@ -15,8 +15,8 @@ public class DataController : MonoBehaviour
 
     public List<UserData> players = new();
     [SerializeField] RawImage texture;
-    [SerializeField] VideoClip menuClip;
-    [SerializeField] VideoClip standbyClip;
+    [SerializeField] string menuClip;
+    [SerializeField] string standbyClip;
 
     [SerializeField] [TextArea] string loadedData;
 
@@ -59,17 +59,23 @@ public class DataController : MonoBehaviour
             texture.texture = GetComponent<VideoPlayer>().texture;
     }
 
-    public void ChangeBackground(VideoClip clip)
+    public void ChangeBackground(string URL)
     {
         VideoPlayer player = GetComponent<VideoPlayer>();
-        player.clip = clip;
+
+        string url = System.IO.Path.Combine(Application.streamingAssetsPath, "Videos", URL);
+        player.url = url;
+
         player.Play();
     }
 
     public void ChangeBackground()
     {
         VideoPlayer player = GetComponent<VideoPlayer>();
-        player.clip = menuClip;
+
+        string url = System.IO.Path.Combine(Application.streamingAssetsPath, "Videos", menuClip);
+        player.url = url;
+
         player.Play();
     }
 

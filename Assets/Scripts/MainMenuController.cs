@@ -29,7 +29,7 @@ public class MainMenuController : MonoBehaviour
 
     [Space(15)]
     [SerializeField] LeanTweenType easeType;
-    [SerializeField] VideoClip backgroundClip;
+    [SerializeField] string backgroundClip;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

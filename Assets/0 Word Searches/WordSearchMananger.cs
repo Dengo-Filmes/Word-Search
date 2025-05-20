@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.Services.Leaderboards;
+using UnityEngine.Video;
 
 public class WordSearchMananger : MonoBehaviour
 {
@@ -688,6 +689,7 @@ public class WordSearchMananger : MonoBehaviour
         //OnWordSearchComplete.transform.DOScale(Vector3.one, LerpTime);
         //OnWordSearchComplete.transform.localScale = Vector3.one;
         LeanTween.scale(OnWordSearchComplete, Vector3.one, 0.5f).setEaseInOutCirc().setDelay(0.75f);
+        OnWordSearchComplete.GetComponentInChildren<VideoPlayer>().url = System.IO.Path.Combine(Application.streamingAssetsPath, "Videos", "TELA_DE_AGRADECIMENTO.mp4");
         nameText.text = DataController.Instance.GetUserData().username;
         CompleteTimeText.text = "Parabéns! Sua pontuação é: " + GetFinalScore() + " pontos!";
         DataController.Instance.SaveUserData(GetFinalScore());

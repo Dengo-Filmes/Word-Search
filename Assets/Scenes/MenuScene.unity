@@ -1080,7 +1080,7 @@ MonoBehaviour:
   leaderboardMax: 5
   standbyWaitTime: 30
   easeType: 22
-  backgroundClip: {fileID: 32900000, guid: e48b78f7e7ba39f45839e34126e6b3ee, type: 3}
+  backgroundClip: FUNDO_1.mp4
 --- !u!4 &236916450
 Transform:
   m_ObjectHideFlags: 0
@@ -4579,8 +4579,8 @@ MonoBehaviour:
     score: 0
   players: []
   texture: {fileID: 0}
-  menuClip: {fileID: 32900000, guid: 64bc1350ca8619042a313386072f8d71, type: 3}
-  standbyClip: {fileID: 32900000, guid: 5b014f07408201149a7ae7ae85c52962, type: 3}
+  menuClip: TELA_INICIO.mp4
+  standbyClip: STANDBY.mp4
   loadedData: 
 --- !u!4 &2098134996
 Transform:

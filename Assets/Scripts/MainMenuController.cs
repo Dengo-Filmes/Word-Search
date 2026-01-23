@@ -11,7 +11,7 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] CanvasGroup signinCanvas;
     [SerializeField] CanvasGroup menuCanvas;
     [SerializeField] RectTransform inputPanel;
-    [SerializeField] Animator transitionCanvas;
+    [SerializeField] Animation transitionCanvas;
 
     [Header("Sign-in")]
     [SerializeField] TMP_InputField nameField;
@@ -39,29 +39,29 @@ public class MainMenuController : MonoBehaviour
     void Start()
     {
         //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
-            DataController.Instance.LoadGoogleData();
-        SetStandby(true);
+            //DataController.Instance.LoadGoogleData();
+        SetStandby(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(signinCanvas.alpha < 1 && !onStandby)
-        {
-            if (s_timer < standbyWaitTime) s_timer += Time.deltaTime;
-            else
-            {
-                if(!onStandby) 
-                    SetStandby(true);
-            }
-        }
+        //if(signinCanvas.alpha < 1 && !onStandby)
+        //{
+        //    if (s_timer < standbyWaitTime) s_timer += Time.deltaTime;
+        //    else
+        //    {
+        //        if(!onStandby) 
+        //            SetStandby(true);
+        //    }
+        //}
     }
 
-    public void SetStandby(bool standby)
+    void SetStandby(bool standby)
     {
-        if (standby)
-            DataController.Instance.SetStandby();
-        else
+        //if (standby)
+        //    DataController.Instance.SetStandby();
+        //else
             DataController.Instance.ChangeBackground();
 
         menuCanvas.alpha = standby ? 0 : 1;
@@ -140,7 +140,7 @@ public class MainMenuController : MonoBehaviour
 
     IEnumerator LoadNextScene()
     {
-        transitionCanvas.Play("Transition_open");
+        transitionCanvas.Play("TransitionClose");
 
         yield return new WaitForSeconds(0.7f);
 

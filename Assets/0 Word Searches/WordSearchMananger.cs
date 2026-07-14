@@ -6,6 +6,9 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.Services.Leaderboards;
 using UnityEngine.Video;
+using AYellowpaper.SerializedCollections;
+
+using System;
 
 public class WordSearchMananger : MonoBehaviour
 {
@@ -22,8 +25,8 @@ public class WordSearchMananger : MonoBehaviour
     [SerializeField] float TimeToComplete = 0;
     float timer;
     [SerializeField] TMP_Text InGameTimeText;
-    [SerializeField] TMP_Text playedTimeText;
-    [SerializeField] TMP_Text addedTimeText;
+    // [SerializeField] TMP_Text playedTimeText;
+    // [SerializeField] TMP_Text addedTimeText;
     float gameTimer = 0;
     public float LerpTime;
     [Space(15)]
@@ -37,17 +40,29 @@ public class WordSearchMananger : MonoBehaviour
     List<GameObject> SelectedLettersList = new();
     List<GameObject> CorrectLettersList = new();
     [Space(15)]
+
+    [Header("Grid size")]
+    [SerializeField]
     private int BoardSize = 15;
+    [Header("")]
     [HideInInspector]
     public int WordsLeft = 0;
     [Space(15)]
     //[HideInInspector]
-    public List<string> WordsToFind;
+    [Header("words")]
+    private List<string> WordsToFind = new();
+    private Dictionary<string, GameObject> _wordsObjs = new();
+    [SerializeField] int choseCount;
+    [SerializedDictionary("EventDay", "Words")]
+    [SerializeField] SerializedDictionary<string, List<string>> WordsBank;
+    private List<string> _discartedWords = new();
+
     [Space(15)]
     public TMP_Text nameText;
     public TMP_Text CompleteTimeText;
     [Header("Prefabs")]
     public GameObject LetterPrefab;
+    // [SerializeField] Vector3 _letterScale;
     public GameObject WordPrefab;
     [Space(15)]
     public Transform WordSearchGridParent;
@@ -70,16 +85,71 @@ public class WordSearchMananger : MonoBehaviour
     [SerializeField] TMP_Text scoreText;
     [SerializeField] TMP_Text multiplierText;
     [SerializeField] Image multiplierBar;
+
+    // [Header("Screens")]
+    // [SerializedDictionary("Screen ID", "Screen")]
+    // public SerializedDictionary<string, GameObject> _screens;
+    [SerializeField] GameObject _gameObj;
+
+    [SerializeField] GameObject _transitionObj;
+
+    [Header("Anounce")]
+    [SerializeField] GameObject _anounceText;
+    [SerializeField] GameObject _anounceBkg;
+    [SerializeField] float _animationTime = 1.2f;
+    private float _anounceOriginalAlpha = 0;
     float multiplierTimer = 0;
+
+    private bool _runTimer = false;
 
     //private string URL = "https://randomword.com/";
 
     #endregion
     private void Start()
     {
+        DataStorage.Init(HudView.dbFilePath);
         MakeWordSearch();
 
         timer = TimeToComplete;
+        _anounceOriginalAlpha = _anounceBkg.GetComponent<CanvasGroup>().alpha;
+        _anounceBkg.GetComponent<CanvasGroup>().alpha = 0;
+        _anounceBkg.SetActive(false);
+        _anounceText.SetActive(false);
+    }
+
+    void OnEnable()
+    {
+        _transitionObj.GetComponent<TransitionView>().OnAnimationOpenEnd.AddListener(() =>
+        {
+            try
+            {
+                _gameObj.SetActive(true);
+                _gameObj.GetComponent<HudScreenView>().PreLoad();
+                _gameObj.GetComponent<HudScreenView>().Show();
+
+                gameObject.GetComponent<TimerView>().onComplete.AddListener(OnTimerEnd);
+                gameObject.GetComponent<TimerView>().StartTimer();
+            }
+            catch (Exception ex)
+            {
+                print($"Failed starting game screen with error {ex.StackTrace}");
+            }
+        });
+        _transitionObj.GetComponent<TransitionView>().RunOpenTransition();
+    }
+
+    public string GetToday()
+    {
+        var today = DateTime.Today;
+        if (today < DateTime.Parse("2026-07-23"))
+        {
+            return "2026-07-23";
+        }
+        else if (today > DateTime.Parse("2026-07-25"))
+        {
+            return "2026-07-25";
+        }
+        return today.ToString("yyyy-MM-dd");
     }
 
     /// <summary>
@@ -94,7 +164,7 @@ public class WordSearchMananger : MonoBehaviour
         LoadWordsToFind();
 
         //random seed
-        RandomSeed = Random.Range(0, 1000000);
+        RandomSeed = UnityEngine.Random.Range(0, 1000000);
         WordSearchBoard = MakeGrid(RandomSeed);
 
         //make a grid
@@ -114,7 +184,34 @@ public class WordSearchMananger : MonoBehaviour
     /// </summary>
     void LoadWordsToFind()
     {
+        if (_discartedWords.Count == WordsBank[GetToday()].Count)
+        {
+            _discartedWords = new List<string>();
+        }
         //WordsToFind = GetDataFromWebpage(URL);
+        for (var i = 0; i < choseCount; i++)
+        {
+            // not ideal but...
+            print($"chosing {i} word");
+            var rnd = new System.Random();
+            while (true)
+            {
+                print("finding word");
+                int choseIndex = rnd.Next(0, WordsBank[GetToday()].Count);
+                print($"chosen index {choseIndex}");
+                if (!_discartedWords.Contains(WordsBank[GetToday()][choseIndex]))
+                {
+                    if (WordsBank[GetToday()][choseIndex].Length >= BoardSize)
+                    {
+                        BoardSize = WordsBank[GetToday()][choseIndex].Length + 1;
+                    }
+                    print($"{WordsBank[GetToday()][choseIndex]} is not in discarted pile");
+                    _discartedWords.Add(WordsBank[GetToday()][choseIndex]);
+                    WordsToFind.Add(WordsBank[GetToday()][choseIndex]);
+                    break;
+                }
+            }
+        }
     }
 
     public char[,] MakeGrid(int seed)
@@ -129,7 +226,7 @@ public class WordSearchMananger : MonoBehaviour
         newGrid = PlaceWordsInTheBoard();
 
         //if (WantRandomLetters)
-            newGrid = FillTheBoardWithRandomChars(newGrid, seed);
+        newGrid = FillTheBoardWithRandomChars(newGrid, seed);
 
         return newGrid;
     }
@@ -199,14 +296,14 @@ public class WordSearchMananger : MonoBehaviour
             while (canPlace)
             {
                 //random cords x and y in the board
-                int placeCordsX = Random.Range(0, BoardSize);
-                int placeCordsY = Random.Range(0, BoardSize);
+                int placeCordsX = UnityEngine.Random.Range(0, BoardSize);
+                int placeCordsY = UnityEngine.Random.Range(0, BoardSize);
 
                 //0 - horizontal
                 //1 - Vertical
                 //2 - Pos Diagonal
                 //3 - Neg Diagonal
-                int howToPlace = Random.Range(0, 2);
+                int howToPlace = UnityEngine.Random.Range(0, 2);
 
 
                 //the placing methods are pretty much the same, just build for what they need to do
@@ -223,10 +320,10 @@ public class WordSearchMananger : MonoBehaviour
                         }
 
                         //check if you want the word to be placed forwards or backwards
-                        //if (Random.Range(0, 2) == 0)
+                        //if (UnityEngine.Random.Range(0, 2) == 0)
                         //{
                         //    //check if the word is valid
-                            
+
                         //}
                         //else
                         //{
@@ -251,9 +348,9 @@ public class WordSearchMananger : MonoBehaviour
                             canPlace = false;
                         }
 
-                        //if (Random.Range(0, 2) == 0)
+                        //if (UnityEngine.Random.Range(0, 2) == 0)
                         //{
-                            
+
                         //}
                         //else
                         //{
@@ -276,9 +373,9 @@ public class WordSearchMananger : MonoBehaviour
                             canPlace = false;
                         }
 
-                        //if (Random.Range(0, 2) == 0)
+                        //if (UnityEngine.Random.Range(0, 2) == 0)
                         //{
-                            
+
                         //}
                         //else
                         //{
@@ -295,7 +392,7 @@ public class WordSearchMananger : MonoBehaviour
                 {
                     if (word.Length + placeCordsX < BoardSize && word.Length + placeCordsY < BoardSize && placeCordsX > word.Length && placeCordsY > word.Length)
                     {
-                        if (Random.Range(0, 2) == 0)
+                        if (UnityEngine.Random.Range(0, 2) == 0)
                         {
                             if (IsValidForDiagonalNeg(true, word, placeCordsX, placeCordsY, newGrid))
                             {
@@ -432,8 +529,8 @@ public class WordSearchMananger : MonoBehaviour
         //this is used to fill the board with random letters after you get the wanted words down
         char[,] newGrid = grid;
 
-        Random.InitState(seed);
-        
+        UnityEngine.Random.InitState(seed);
+
         //go through board
         for (int col = 0; col < BoardSize; col++)
         {
@@ -458,7 +555,7 @@ public class WordSearchMananger : MonoBehaviour
     {
         //ascii range for upper case letters
         //https://en.cppreference.com/w/cpp/language/ascii
-        return (char)Random.Range(97, 123);
+        return (char)UnityEngine.Random.Range(97, 123);
     }
 
     /// <summary>
@@ -494,6 +591,7 @@ public class WordSearchMananger : MonoBehaviour
     {
         //pro tip: learn about grid layout groups. they are super helpful for all ui
         GameObject letter = Instantiate(LetterPrefab, Vector3.zero, Quaternion.identity, WordSearchGridParent);
+        // letter.transform.localScale = _letterScale;
         //letter.GetComponentInChildren<TMP_Text>().rectTransform.sizeDelta = letter.GetComponent<RectTransform>().sizeDelta * 4;
 
         return letter;
@@ -504,22 +602,28 @@ public class WordSearchMananger : MonoBehaviour
     /// </summary>
     void PlaceWhatWordsAreInThePuzzle()
     {
+        foreach (string word in WordsToFind)
+        {
+            _wordsObjs[word] = Instantiate(WordPrefab, WordsInWordSearchParent.transform);
+            _wordsObjs[word].GetComponent<WordView>().SetText(word);
+        }
         //theres are the words that you are looking for displayed on the left side of the board
-        foreach (string i in WordsToFind)
-        {
-            GameObject word = Instantiate(WordPrefab, Vector3.zero, Quaternion.identity, WordsInWordSearchParent);
-            word.transform.localScale = Vector3.zero;
+        // foreach (string i in WordsToFind)
+        // {
+        //     GameObject word = Instantiate(WordPrefab, Vector3.zero, Quaternion.identity, WordsInWordSearchParent);
+        //     word.transform.localScale = Vector3.zero;
 
-            word.GetComponentInChildren<TMP_Text>().text = i;
-        }
+        //     word.GetComponentInChildren<TMP_Text>().text = i;
+        // }
 
-        //lerp theses bad boys in
-        //ALSO GET DOTWEEN FROM UNITY ASSET STORE - ITS THE BEST THING EVER
-        foreach (Transform i in WordsInWordSearchParent) 
-        {
-            //i.DOScale(Vector3.one, LerpTime).SetEase(Ease.InOutQuint);
-            i.localScale = Vector3.one;
-        }
+        // //lerp theses bad boys in
+        // //ALSO GET DOTWEEN FROM UNITY ASSET STORE - ITS THE BEST THING EVER
+        // foreach (Transform i in WordsInWordSearchParent)
+        // {
+        //     //i.DOScale(Vector3.one, LerpTime).SetEase(Ease.InOutQuint);
+        //     i.localScale = Vector3.one;
+        // }
+
     }
 
     #endregion
@@ -571,7 +675,7 @@ public class WordSearchMananger : MonoBehaviour
     /// <param name="letter"></param>
     public void AddToSelected(GameObject letter)
     {
-        if (!SelectedLettersList.Contains(letter)) 
+        if (!SelectedLettersList.Contains(letter))
         {
             SelectedLettersList.Add(letter);
         }
@@ -598,7 +702,7 @@ public class WordSearchMananger : MonoBehaviour
             return false;
 
         //is there a word that is forwards or backwards in the list?
-        if (WordsToFind.Contains(SelectedLetters) || WordsToFind.Contains(reverseSelected)) 
+        if (WordsToFind.Contains(SelectedLetters) || WordsToFind.Contains(reverseSelected))
         {
             return true;
         }
@@ -619,7 +723,7 @@ public class WordSearchMananger : MonoBehaviour
             i.GetComponent<WordSearchLetterController>().isSelected = false;
         }
 
-        
+
     }
 
     /// <summary>
@@ -632,10 +736,18 @@ public class WordSearchMananger : MonoBehaviour
         char[] reverseCharArray = SelectedLetters.ToCharArray();
         System.Array.Reverse(reverseCharArray);
         reverseSelected = new string(reverseCharArray);
+        if (_wordsObjs.ContainsKey(SelectedLetters))
+        {
+            _wordsObjs[SelectedLetters].GetComponent<WordView>().SetFound();
+        }
+        else if (_wordsObjs.ContainsKey(reverseSelected))
+        {
+            _wordsObjs[reverseSelected].GetComponent<WordView>().SetFound();
+        }
 
-        foreach (Transform i in WordsInWordSearchParent)
-            if (i.GetComponentInChildren<TMP_Text>().text == SelectedLetters || i.GetComponentInChildren<TMP_Text>().text == reverseSelected)
-                i.GetComponentInChildren<TMP_Text>().color = Correct;
+        // foreach (Transform i in WordsInWordSearchParent)
+        //     if (i.GetComponentInChildren<TMP_Text>().text == SelectedLetters || i.GetComponentInChildren<TMP_Text>().text == reverseSelected)
+        //         i.GetComponentInChildren<TMP_Text>().color = Correct;
 
         AddScore();
         AddMultiplier();
@@ -643,25 +755,26 @@ public class WordSearchMananger : MonoBehaviour
 
     void AddMultiplier()
     {
-        timer += timeToAdd;
-        multiplierTimer = timeToAdd * 2;
+        return;
+        // timer += timeToAdd;
+        // multiplierTimer = timeToAdd * 2;
 
-        scoreText.rectTransform.localScale = new Vector3(2f, 2f, 2f);
-        LeanTween.scale(scoreText.gameObject, Vector3.one, 0.5f).setEaseOutBounce();
+        // scoreText.rectTransform.localScale = new Vector3(2f, 2f, 2f);
+        // LeanTween.scale(scoreText.gameObject, Vector3.one, 0.5f).setEaseOutBounce();
 
-        addedTimeText.text = "+" + timeToAdd.ToString() + "s";
+        // addedTimeText.text = "+" + timeToAdd.ToString() + "s";
 
-        addedTimeText.rectTransform.localScale = new Vector3(0, 1, 1);
-        LeanTween.scale(addedTimeText.gameObject, new Vector3(1, 1, 1), 0.15f).setOnStart(() =>
-        {
-            LeanTween.alphaCanvas(addedTimeText.GetComponent<CanvasGroup>(), 1, 0.1f);
-        }).setOnComplete(() =>
-        {
-            LeanTween.scale(addedTimeText.gameObject, new Vector3(0, 1, 1), 0.15f).setDelay(3f).setOnStart(() =>
-            {
-                LeanTween.alphaCanvas(addedTimeText.GetComponent<CanvasGroup>(), 0, 0.1f);
-            });
-        });
+        // addedTimeText.rectTransform.localScale = new Vector3(0, 1, 1);
+        // LeanTween.scale(addedTimeText.gameObject, new Vector3(1, 1, 1), 0.15f).setOnStart(() =>
+        // {
+        //     LeanTween.alphaCanvas(addedTimeText.GetComponent<CanvasGroup>(), 1, 0.1f);
+        // }).setOnComplete(() =>
+        // {
+        //     LeanTween.scale(addedTimeText.gameObject, new Vector3(0, 1, 1), 0.15f).setDelay(3f).setOnStart(() =>
+        //     {
+        //         LeanTween.alphaCanvas(addedTimeText.GetComponent<CanvasGroup>(), 0, 0.1f);
+        //     });
+        // });
     }
 
     /// <summary>
@@ -671,12 +784,50 @@ public class WordSearchMananger : MonoBehaviour
     int HowManyWordsAreLeft()
     {
         int total = 0;
-        foreach (Transform i in WordsInWordSearchParent)
-            if (i.GetComponentInChildren<TMP_Text>().color != Correct)
+        // foreach (Transform i in WordsInWordSearchParent)
+        //     if (i.GetComponentInChildren<TMP_Text>().color != Correct)
+        //         total++;
+        foreach (var item in _wordsObjs)
+        {
+            if (item.Value.GetComponent<WordView>().found == false)
+            {
                 total++;
+            }
+        }
 
         return total;
     }
+
+    private void SendToEnding()
+    {
+        var wordsFound = WordsToFind.Count - HowManyWordsAreLeft();
+        print($"words found {wordsFound}");
+        if (wordsFound >= 3)
+        {
+            var config = DataStorage.GetItem<GeneralConfig>("config", "general");
+            config.ending = "GoodEnding";
+            DataStorage.AddItem("config", "general", config);
+            DataStorage.SaveKeyChain(HudView.dbFilePath);
+            _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+            {
+                SceneManager.LoadScene(2);
+            });
+            _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
+        }
+        else
+        {
+            var config = DataStorage.GetItem<GeneralConfig>("config", "general");
+            config.ending = "BadEnding";
+            DataStorage.AddItem("config", "general", config);
+            DataStorage.SaveKeyChain(HudView.dbFilePath);
+            _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+            {
+                SceneManager.LoadScene(2);
+            });
+            _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
+        }
+    }
+
 
     /// <summary>
     /// what to do whne a word search is complete
@@ -685,14 +836,80 @@ public class WordSearchMananger : MonoBehaviour
     {
         if (!isPlaying) return;
 
-        SumScore();
-        //OnWordSearchComplete.transform.DOScale(Vector3.one, LerpTime);
-        //OnWordSearchComplete.transform.localScale = Vector3.one;
-        LeanTween.scale(OnWordSearchComplete, Vector3.one, 0.5f).setEaseInOutCirc().setDelay(0.75f);
-        OnWordSearchComplete.GetComponentInChildren<VideoPlayer>().url = System.IO.Path.Combine(Application.streamingAssetsPath, "Videos", "01_FUNDO_COM TEXTURA.mp4");
-        //nameText.text = DataController.Instance.GetUserData().username;
-        CompleteTimeText.text = "Sua pontuação é: " + GetFinalScore() + " pontos!";
-        //DataController.Instance.SaveUserData(GetFinalScore());
+        // var _anounceText = _anounce.transform.GetChild(1);
+        var originalSize = _anounceText.transform.localScale;
+        _anounceText.transform.localScale = Vector3.zero;
+        _anounceText.SetActive(true);
+        _anounceBkg.SetActive(true);
+        _anounceBkg.GetComponent<CanvasGroup>().LeanAlpha(_anounceOriginalAlpha, _animationTime)
+        .setEaseOutQuad();
+
+        _anounceText.transform.LeanScale(originalSize, _animationTime)
+        .setEaseOutElastic()
+        .setOnComplete(() =>
+        {
+            LeanTween.value(0, 1, 2f).setOnComplete(() =>
+            {
+                SendToEnding();
+            });
+        });
+
+        // var wordsFound = WordsToFind.Count - HowManyWordsAreLeft();
+        // if (wordsFound >= 3)
+        // {
+        //     var config = DataStorage.GetItem<GeneralConfig>("config", "general");
+        //     config.ending = "GoodEnding";
+        //     DataStorage.AddItem("config", "general", config);
+        //     DataStorage.SaveKeyChain(HudView.dbFilePath);
+        //     _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+        //     {
+        //         SceneManager.LoadScene(2);
+        //     });
+        //     _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
+
+        //     // _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
+        //     // _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+        //     // {
+        //     //     _screens["GoodEnding"].SetActive(true);
+        //     //     _screens["GoodEnding"].GetComponent<HudScreenView>().PreLoad();
+        //     //     _transitionObj.GetComponent<TransitionView>().RunOpenTransition();
+        //     //     _transitionObj.GetComponent<TransitionView>().OnAnimationOpenStart.AddListener(() =>
+        //     //     {
+        //     //         _screens["GoodEnding"].GetComponent<HudScreenView>().Show();
+        //     //     });
+        //     // });
+        // }
+        // else
+        // {
+        //     var config = DataStorage.GetItem<GeneralConfig>("config", "general");
+        //     config.ending = "BadEnding";
+        //     DataStorage.AddItem("config", "general", config);
+        //     DataStorage.SaveKeyChain(HudView.dbFilePath);
+        //     _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+        //     {
+        //         SceneManager.LoadScene(2);
+        //     });
+        //     _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
+        // _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
+        // _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+        // {
+        //     _screens["BadEnding"].SetActive(true);
+        //     _screens["BadEnding"].GetComponent<HudScreenView>().PreLoad();
+        //     _transitionObj.GetComponent<TransitionView>().RunOpenTransition();
+        //     _transitionObj.GetComponent<TransitionView>().OnAnimationOpenStart.AddListener(() =>
+        //     {
+        //         _screens["BadEnding"].GetComponent<HudScreenView>().Show();
+        //     });
+        // });
+        // }
+        // SumScore();
+        // //OnWordSearchComplete.transform.DOScale(Vector3.one, LerpTime);
+        // //OnWordSearchComplete.transform.localScale = Vector3.one;
+        // LeanTween.scale(OnWordSearchComplete, Vector3.one, 0.5f).setEaseInOutCirc().setDelay(0.75f);
+        // OnWordSearchComplete.GetComponentInChildren<VideoPlayer>().url = System.IO.Path.Combine(Application.streamingAssetsPath, "Videos", "01_FUNDO_COM TEXTURA.mp4");
+        // //nameText.text = DataController.Instance.GetUserData().username;
+        // CompleteTimeText.text = "Sua pontuação é: " + GetFinalScore() + " pontos!";
+        // //DataController.Instance.SaveUserData(GetFinalScore());
 
         //SaveDataAsync();
     }
@@ -811,49 +1028,47 @@ public class WordSearchMananger : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (WordsLeft > 0 && isPlaying && timer > 0)
-        {
-            timer -= Time.deltaTime;
-            gameTimer += Time.deltaTime;
+        // if (WordsLeft > 0 && isPlaying && timer > 0 && _runTimer)
+        // {
+        // timer -= Time.deltaTime;
+        // gameTimer += Time.deltaTime;
 
-            //string secs = TimeToComplete % 60 <= 10 ? "0" + (TimeToComplete % 60).ToString("F0") : (TimeToComplete % 60).ToString("F0");
-            //string mins = (TimeToComplete / 60).ToString("F0");
+        //string secs = TimeToComplete % 60 <= 10 ? "0" + (TimeToComplete % 60).ToString("F0") : (TimeToComplete % 60).ToString("F0");
+        //string mins = (TimeToComplete / 60).ToString("F0");
 
-            float minutes = Mathf.FloorToInt(timer / 60);
-            float seconds = Mathf.FloorToInt(timer % 60);
+        // float minutes = Mathf.FloorToInt(timer / 60);
+        // float seconds = Mathf.FloorToInt(timer % 60);
+        // minutes = minutes <= 0 ? 0 : minutes;
+        // seconds = seconds <= 0 ? 0 : seconds;
+        // // float playedMinutes = Mathf.FloorToInt(gameTimer / 60);
+        // // float playedSeconds = Mathf.FloorToInt(gameTimer % 60);
 
-            float playedMinutes = Mathf.FloorToInt(gameTimer / 60);
-            float playedSeconds = Mathf.FloorToInt(gameTimer % 60);
+        // InGameTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        // playedTimeText.text = string.Format("{0:00}:{1:00}", playedMinutes, playedSeconds);
 
-            InGameTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
-            playedTimeText.text = string.Format("{0:00}:{1:00}", playedMinutes, playedSeconds);
-
-            //InGameTimeText.text = mins + " : " + secs;
-        } else if (timer <= 0)
-        {
-            OnPuzzleComplete(true);
-            isPlaying = false;
-        }
-
-            scoreText.text = (score + scoreToAdd).ToString();
-        if (scoreMultiplier > 0)
-        {
-            multiplierText.text = scoreMultiplier.ToString() + "x";
-            multiplierBar.transform.parent.gameObject.SetActive(true);
-            multiplierBar.fillAmount = multiplierTimer / (timeToAdd * 2);
-        }
-        else
-        {
-            multiplierText.text = "";
-            multiplierBar.transform.parent.gameObject.SetActive(false);
-        }
+        //InGameTimeText.text = mins + " : " + secs;
+        // }
+        // else if (timer <= 0)
+        // {
+        //     OnPuzzleComplete(true);
+        //     isPlaying = false;
+        // }
 
         if (WordsLeft == 0)
+        {
             isPlaying = false;
+            gameObject.GetComponent<TimerView>().StopTimer();
+        }
 
         // Substituir pelo novo Input System / Touch Script
         if (Input.GetMouseButton(0))
             FillInSelectedLetters();
+    }
+
+    private void OnTimerEnd()
+    {
+        OnPuzzleComplete(true);
+        isPlaying = false;
     }
 
     public void ReturnToMenu()
@@ -877,7 +1092,7 @@ public class WordSearchMananger : MonoBehaviour
             multiplierTimer -= Time.deltaTime;
         else
         {
-            if(scoreMultiplier > 0)
+            if (scoreMultiplier > 0)
                 SumScore();
             multiplierTimer = 0;
         }

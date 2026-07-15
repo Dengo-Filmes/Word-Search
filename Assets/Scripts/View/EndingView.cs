@@ -15,6 +15,12 @@ public class EndingView : MonoBehaviour
     void Start()
     {
         DataStorage.Init(HudView.dbFilePath);
+
+    }
+
+    void SetScreen()
+    {
+        print("setting ending screen");
         var config = DataStorage.GetItem<GeneralConfig>("config", "general");
         print($"config {config.ending}");
         goodEnding.SetActive(false);
@@ -33,24 +39,34 @@ public class EndingView : MonoBehaviour
             badEnding.GetComponent<HudScreenView>().PreLoad();
             badEnding.GetComponent<HudScreenView>().Show();
         }
+        runTimer = true;
+        _timer = timeout;
     }
 
     void OnEnable()
     {
-        runTimer = true;
-        _timer = timeout;
+        TransitionView.instance.OnAnimationOpenStart.AddListener(SetScreen);
+        LeanTween.value(0, 1, 0.01f).setOnComplete(
+            () =>
+            {
+                TransitionView.instance.RunOpenTransition();
+            }
+        );
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_timer > 0 && runTimer)
+        if (runTimer)
         {
-            _timer -= Time.deltaTime;
-        }
-        if (_timer <= 0)
-        {
-            SceneManager.LoadScene(0);
+            if (_timer > 0 && runTimer)
+            {
+                _timer -= Time.deltaTime;
+            }
+            if (_timer <= 0)
+            {
+                SceneManager.LoadScene(0);
+            }
         }
     }
 

@@ -9,6 +9,7 @@ using UnityEngine.Video;
 using AYellowpaper.SerializedCollections;
 
 using System;
+using System.Linq;
 
 public class WordSearchMananger : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class WordSearchMananger : MonoBehaviour
     [Space(15)]
     public Color SelectColor;
     public Color Correct;
+    public Color CorrectBoard;
     public Color Wrong;
     List<GameObject> SelectedLettersList = new();
     List<GameObject> CorrectLettersList = new();
@@ -51,7 +53,8 @@ public class WordSearchMananger : MonoBehaviour
     //[HideInInspector]
     [Header("words")]
     private List<string> WordsToFind = new();
-    private Dictionary<string, GameObject> _wordsObjs = new();
+    // private Dictionary<string, GameObject> _wordsObjs = new();
+    private Dictionary<string, bool> _wordsObjs = new();
     [SerializeField] int choseCount;
     [SerializedDictionary("EventDay", "Words")]
     [SerializeField] SerializedDictionary<string, List<string>> WordsBank;
@@ -64,6 +67,8 @@ public class WordSearchMananger : MonoBehaviour
     public GameObject LetterPrefab;
     // [SerializeField] Vector3 _letterScale;
     public GameObject WordPrefab;
+
+    [SerializeField] TMP_Text wordBoard;
     [Space(15)]
     public Transform WordSearchGridParent;
     public Transform WordsInWordSearchParent;
@@ -597,6 +602,32 @@ public class WordSearchMananger : MonoBehaviour
         return letter;
     }
 
+    void PlotWords()
+    {
+        wordBoard.text = "";
+        for (int i = 0; i < _wordsObjs.Keys.Count; i++)
+        {
+            var word = _wordsObjs.Keys.ToList()[i];
+            if (_wordsObjs[_wordsObjs.Keys.ToList()[i]])
+            {
+                word = $"<color=#{ColorUtility.ToHtmlStringRGBA(CorrectBoard)}><b><s>{word}</s></b></color>";
+            }
+            if (i == 0)
+            {
+                word = $"{word} -";
+            }
+            else if (i == _wordsObjs.Keys.Count - 1)
+            {
+                word = $" {word}";
+            }
+            else
+            {
+                word = $" {word} -";
+            }
+            wordBoard.text += word;
+        }
+    }
+
     /// <summary>
     /// sets the words that are on the side
     /// </summary>
@@ -604,9 +635,11 @@ public class WordSearchMananger : MonoBehaviour
     {
         foreach (string word in WordsToFind)
         {
-            _wordsObjs[word] = Instantiate(WordPrefab, WordsInWordSearchParent.transform);
-            _wordsObjs[word].GetComponent<WordView>().SetText(word);
+            _wordsObjs[word] = false;
+            // _wordsObjs[word] = Instantiate(WordPrefab, WordsInWordSearchParent.transform);
+            // _wordsObjs[word].GetComponent<WordView>().SetText(word);
         }
+        PlotWords();
         //theres are the words that you are looking for displayed on the left side of the board
         // foreach (string i in WordsToFind)
         // {
@@ -738,11 +771,13 @@ public class WordSearchMananger : MonoBehaviour
         reverseSelected = new string(reverseCharArray);
         if (_wordsObjs.ContainsKey(SelectedLetters))
         {
-            _wordsObjs[SelectedLetters].GetComponent<WordView>().SetFound();
+            _wordsObjs[SelectedLetters] = true;
+            PlotWords();
         }
         else if (_wordsObjs.ContainsKey(reverseSelected))
         {
-            _wordsObjs[reverseSelected].GetComponent<WordView>().SetFound();
+            _wordsObjs[reverseSelected] = true;
+            PlotWords();
         }
 
         // foreach (Transform i in WordsInWordSearchParent)
@@ -789,7 +824,7 @@ public class WordSearchMananger : MonoBehaviour
         //         total++;
         foreach (var item in _wordsObjs)
         {
-            if (item.Value.GetComponent<WordView>().found == false)
+            if (item.Value == false)
             {
                 total++;
             }

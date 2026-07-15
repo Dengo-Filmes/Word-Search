@@ -308,6 +308,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1919774398289906094, guid: d2a6e9adb5279034db1debf77ab14145, type: 3}
   m_PrefabInstance: {fileID: 163287728}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &163287730 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 700814042794524618, guid: d2a6e9adb5279034db1debf77ab14145, type: 3}
+  m_PrefabInstance: {fileID: 163287728}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &269773318
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,6 +567,7 @@ MonoBehaviour:
   timeout: 5
   goodEnding: {fileID: 1861056195}
   badEnding: {fileID: 935841002}
+  _transitionObj: {fileID: 163287730}
 --- !u!1 &915974890
 GameObject:
   m_ObjectHideFlags: 0
@@ -735,7 +741,7 @@ MonoBehaviour:
   _soudSprite: {fileID: 0}
   _muteSprite: {fileID: 0}
   _contentObject: {fileID: 269773318}
-  enableStandby: 1
+  enableStandby: 0
   _standbyTimer: 5
 --- !u!1 &1546506051
 GameObject:

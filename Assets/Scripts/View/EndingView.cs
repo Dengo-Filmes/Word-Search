@@ -10,6 +10,7 @@ public class EndingView : MonoBehaviour
 
     [SerializeField] GameObject goodEnding;
     [SerializeField] GameObject badEnding;
+    [SerializeField] GameObject _transitionObj;
 
     // // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -45,13 +46,13 @@ public class EndingView : MonoBehaviour
 
     void OnEnable()
     {
-        TransitionView.instance.OnAnimationOpenStart.AddListener(SetScreen);
-        LeanTween.value(0, 1, 0.01f).setOnComplete(
-            () =>
-            {
-                TransitionView.instance.RunOpenTransition();
-            }
-        );
+        _transitionObj.GetComponent<TransitionView>().OnAnimationOpenStart.AddListener(SetScreen);
+        _transitionObj.GetComponent<TransitionView>().RunOpenTransition();
+        // LeanTween.value(0, 1, 0.01f).setOnComplete(
+        //     () =>
+        //     {
+        //     }
+        // );
     }
 
     // Update is called once per frame

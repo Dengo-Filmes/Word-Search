@@ -2716,7 +2716,7 @@ MonoBehaviour:
   _target: {fileID: 1359689911}
   _flashColor: {r: 1, g: 0, b: 0, a: 1}
   InGameTimeText: {fileID: 662604090}
-  _timerTime: 30
+  _timerTime: 15
   _flashTime: 0.5
   _flashAfterTime: 10
   onComplete:

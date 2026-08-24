@@ -66,9 +66,20 @@ public class EndingView : MonoBehaviour
             }
             if (_timer <= 0)
             {
-                SceneManager.LoadScene(0);
+                SendToBegin();
             }
         }
+    }
+
+
+    public void SendToBegin()
+    {
+
+        _transitionObj.GetComponent<TransitionView>().OnAnimationCloseEnd.AddListener(() =>
+        {
+            SceneManager.LoadScene(0);
+        });
+        _transitionObj.GetComponent<TransitionView>().RunCloseTransition();
     }
 
 }

@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &38076695
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 38076696}
+  m_Layer: 0
+  m_Name: ROOT
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &38076696
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 38076695}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -32.06212, y: 7.97961, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &41791641
 GameObject:
   m_ObjectHideFlags: 0
@@ -2549,7 +2580,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &490815047
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3281,7 +3312,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &626936587
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3600,14 +3631,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08627451, g: 0.21568629, b: 0.3254902, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2c7d6953050403845880df66f57c9b83, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4032,7 +4063,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &992611800
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4068,10 +4099,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HudScreenView
   isActive: 0
   _backgroundObj: {fileID: 2121725375}
-  ShowImage: 0
-  BackgroundImage: {fileID: 0}
+  ShowImage: 1
+  BackgroundImage: {fileID: 21300000, guid: 4c573c0b86e768b44aeac87b6e767afa, type: 3}
   BackgroundImageObject: {fileID: 758767709}
-  ShowVideo: 1
+  ShowVideo: 0
   VideoClip: {fileID: 32900000, guid: 26626b814b213bc4fb49808a1b4a18e7, type: 3}
   VideoPath: 
   BackgroundVideoObject: {fileID: 1622646932}
@@ -4706,8 +4737,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 595.99994}
-  m_SizeDelta: {x: 485.8, y: 128}
+  m_AnchoredPosition: {x: 0, y: 342}
+  m_SizeDelta: {x: 451, y: 115}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1109338424
 MonoBehaviour:
@@ -4766,15 +4797,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.35686275, g: 0.75294125, b: 0.53333336, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8ddfa0220c6758e4fa16e37fa4180648, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 405183730, guid: d959a6070c4afff48972b1f04c0f74d9, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4968,7 +4999,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1192386286
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4985,7 +5016,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 421.34998, y: -64}
+  m_AnchoredPosition: {x: 370.9, y: -64}
   m_SizeDelta: {x: 256, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1192386287
@@ -6633,11 +6664,11 @@ MonoBehaviour:
   isActive: 0
   _backgroundObj: {fileID: 1334001221}
   ShowImage: 0
-  BackgroundImage: {fileID: 0}
+  BackgroundImage: {fileID: 21300000, guid: 9cde8f67634cdbe4bae43175a428e6a2, type: 3}
   BackgroundImageObject: {fileID: 1828116763}
   ShowVideo: 1
-  VideoClip: {fileID: 32900000, guid: 20b79ff01f4766841a4ad17bf6ad6925, type: 3}
-  VideoPath: 
+  VideoClip: {fileID: 0}
+  VideoPath: Videos/STANDBY.mp4
   BackgroundVideoObject: {fileID: 1520148863}
   _videoVolume: 0.0001
   _muteBtn: {fileID: 0}
@@ -6664,7 +6695,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1696833662
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7113,7 +7144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.08627451, g: 0.21568629, b: 0.3254902, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9245,3 +9276,4 @@ SceneRoots:
   - {fileID: 829361857}
   - {fileID: 236916450}
   - {fileID: 2098134996}
+  - {fileID: 38076696}

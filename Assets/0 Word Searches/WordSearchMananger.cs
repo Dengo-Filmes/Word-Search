@@ -52,6 +52,7 @@ public class WordSearchMananger : MonoBehaviour
     [Space(15)]
     //[HideInInspector]
     [Header("words")]
+    [SerializeField] int _minimumWordsToFind = 3;
     private List<string> WordsToFind = new();
     // private Dictionary<string, GameObject> _wordsObjs = new();
     private Dictionary<string, bool> _wordsObjs = new();
@@ -189,7 +190,9 @@ public class WordSearchMananger : MonoBehaviour
     /// </summary>
     void LoadWordsToFind()
     {
-        if (_discartedWords.Count == WordsBank[GetToday()].Count)
+        print("loading words");
+        List<string> currentWordBank = WordsBank["1"];
+        if (_discartedWords.Count == currentWordBank.Count)
         {
             _discartedWords = new List<string>();
         }
@@ -202,17 +205,17 @@ public class WordSearchMananger : MonoBehaviour
             while (true)
             {
                 print("finding word");
-                int choseIndex = rnd.Next(0, WordsBank[GetToday()].Count);
+                int choseIndex = rnd.Next(0, currentWordBank.Count);
                 print($"chosen index {choseIndex}");
-                if (!_discartedWords.Contains(WordsBank[GetToday()][choseIndex]))
+                if (!_discartedWords.Contains(currentWordBank[choseIndex]))
                 {
-                    if (WordsBank[GetToday()][choseIndex].Length >= BoardSize)
+                    if (currentWordBank[choseIndex].Length >= BoardSize)
                     {
-                        BoardSize = WordsBank[GetToday()][choseIndex].Length + 1;
+                        BoardSize = currentWordBank[choseIndex].Length + 1;
                     }
-                    print($"{WordsBank[GetToday()][choseIndex]} is not in discarted pile");
-                    _discartedWords.Add(WordsBank[GetToday()][choseIndex]);
-                    WordsToFind.Add(WordsBank[GetToday()][choseIndex]);
+                    print($"{currentWordBank[choseIndex]} is not in discarted pile");
+                    _discartedWords.Add(currentWordBank[choseIndex]);
+                    WordsToFind.Add(currentWordBank[choseIndex]);
                     break;
                 }
             }
@@ -837,7 +840,7 @@ public class WordSearchMananger : MonoBehaviour
     {
         var wordsFound = WordsToFind.Count - HowManyWordsAreLeft();
         print($"words found {wordsFound}");
-        if (wordsFound >= 3)
+        if (wordsFound >= _minimumWordsToFind)
         {
             var config = DataStorage.GetItem<GeneralConfig>("config", "general");
             config.ending = "GoodEnding";
@@ -867,12 +870,16 @@ public class WordSearchMananger : MonoBehaviour
     /// <summary>
     /// what to do whne a word search is complete
     /// </summary>
-    void OnPuzzleComplete(bool time)
+    void OnPuzzleComplete(bool timeOut)
     {
         if (!isPlaying) return;
 
         // var _anounceText = _anounce.transform.GetChild(1);
         var originalSize = _anounceText.transform.localScale;
+        if (!timeOut)
+        {
+            _anounceText.GetComponent<TMP_Text>().text = "Parabéns !";
+        }
         _anounceText.transform.localScale = Vector3.zero;
         _anounceText.SetActive(true);
         _anounceBkg.SetActive(true);
